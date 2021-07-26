@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - jupyterlab
+  - sphinx
