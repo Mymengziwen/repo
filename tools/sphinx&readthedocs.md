@@ -5,6 +5,8 @@
 - [Getting Started with Sphinx](https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html)
 - [Introduction to Sphinx](https://www.writethedocs.org/guide/tools/sphinx/)
 - [reStructuredText 语法](https://3vshej.cn/rstSyntax/)
+- [An idiot’s guide to Python documentation with Sphinx and ReadTheDocs](https://samnicholls.net/2016/06/15/how-to-sphinx-readthedocs/)
+- [Awesome Sphinx (Python Documentation Generator)](https://github.com/yoloseem/awesome-sphinxdoc)
 - [如何用Sphinx 、GitHub 、ReadtheDocs、搭建写书环境](https://wtf.readthedocs.io/en/latest/)
 - [使用ReadtheDocs给项目添加教程文档](https://www.iamlightsmile.com/articles/%E4%BD%BF%E7%94%A8ReadtheDocs%E7%BB%99%E9%A1%B9%E7%9B%AE%E6%B7%BB%E5%8A%A0%E6%95%99%E7%A8%8B%E6%96%87%E6%A1%A3/)
 - [如何给自己的 python 项目添加免费在线文档 ?](https://juejin.im/post/6844903955059884046)
@@ -187,9 +189,49 @@ master_doc = 'index'
 
 Sphinx文档也支持markdown，但是[不推荐使用](https://www.ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/)。如果想要自动转换 markdown 到 reStructuredText，可以试试[这个工具](https://pandoc.org/index.html)
 
+### API文档
+
+代码的文档是从代码注释中自动导出的，所以需要在配置 sphinx-quickstart 时设置 autodoc: automatically insert docstrings from modules (y/n) [n]: y  
+
+如果没设置，则可以在 docs文件夹下面的 source/conf.py 中的extensions 中添加 'sphinx.ext.autodoc'：
+
+```Python
+extensions = [
+    'sphinx.ext.autodoc'
+]
+```
+
+然后将命令行切换到docs目录下，执行以下命令即可：
+
+```Shell
+sphinx-apidoc -o source/ ../xxx（想要生成API文档的文件夹名）/
+```
+
+这样就生成注释对应的API文档的 rst 文件了，接着记得将生成的 module.rst 文件加入到 index.rst 的目录树中，这样就将注释文件纳入到文档体系里了。
+
+然后就可以利用make工具构建文档生成html文件了。
+
 ### 构建文档
 
-编写了文档后，我们希望将其转换为 HTML，这非常简单。只需运行：
+编写了文档后，我们希望将其转换为 HTML，这非常简单，只需运行make语句即可。
+
+不过要注意，根据[这里](https://stackoverflow.com/questions/10324393/sphinx-build-fail-autodoc-cant-import-find-module)的介绍，如果自己在配置的时候选择了 “Separate source and build directories (y/n) [n]: y”，那么这时候，应该在conf.py文件里，将 以下语句修改：
+
+```Python
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('.'))
+```
+
+修改为
+
+```Python
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../..'))
+```
+
+然后再执行make：
 
 ```Shell
 # Inside top-level docs/ directory.
@@ -201,3 +243,7 @@ make html
 ```Shell
 open build/html/index.html
 ```
+
+## 更多灵活配置
+
+另外，除了自己手动撰写的部分，其他部分的流程是可以自动化的。
